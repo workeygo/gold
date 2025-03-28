@@ -72,30 +72,52 @@
         <div id="result"></div>
     </div>
 
-    <audio id="coinSound" src="https://636c-cloud1-3g0xxrrp38514ac2-1258745851.tcb.qcloud.la/e6cb3676940541749ffb26285b0952fe.mp3?sign=5b13afc76eae4386b0f0ef87e793c9c7&t=1743156928" preload="auto"></audio>
+    <audio id="coinSound" src="gold.mp3" preload="auto"></audio>
 
     <script>
+        let timer;
+        let targetSeconds = 0;
+        let elapsedSeconds = 0;
+        
         document.getElementById('calculate').addEventListener('click', function() {
             const dailyWage = parseFloat(document.getElementById('dailyWage').value);
-            const seconds = parseFloat(document.getElementById('seconds').value);
+            targetSeconds = parseFloat(document.getElementById('seconds').value);
             
-            if (isNaN(dailyWage) || isNaN(seconds)) {
+            if (isNaN(dailyWage) || isNaN(targetSeconds)) {
                 alert('请输入有效的数字');
                 return;
             }
             
+            // 清除之前的定时器
+            if(timer) clearInterval(timer);
+            elapsedSeconds = 0;
+            
+            calculateAndAnimate(dailyWage);
+            
+            // 设置定时器，每秒检查一次
+            timer = setInterval(() => {
+                elapsedSeconds++;
+                if(elapsedSeconds >= targetSeconds) {
+                    calculateAndAnimate(dailyWage);
+                    elapsedSeconds = 0; // 重置计时
+                }
+            }, 1000);
+        });
+        
+        function calculateAndAnimate(dailyWage) {
             // 计算每秒工资 (日薪按8小时工作计算)
-            const wagePerSecond = dailyWage / (8 * 60 * 60);
-            const payment = wagePerSecond * seconds;
+            const wagePerSecond = dailyWage / (12 * 60 * 60);
+            const payment = wagePerSecond * targetSeconds;
             
             document.getElementById('result').textContent = `您获得的劳动报酬: ¥${payment.toFixed(2)}`;
             
             // 播放金币声音
+            document.getElementById('coinSound').currentTime = 0; // 重置音频
             document.getElementById('coinSound').play();
             
             // 创建金币动画
             createCoins();
-        });
+        }
         
         function createCoins() {
             const container = document.querySelector('.container');
