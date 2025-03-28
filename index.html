@@ -65,54 +65,57 @@
             <input type="number" id="dailyWage" placeholder="输入您的日薪">
         </div>
         <div>
-            <label for="seconds">工作时间 (秒):</label>
-            <input type="number" id="seconds" placeholder="输入工作时间(秒)">
+            <label for="workHours">每日工作小时:</label>
+            <input type="number" id="workHours" value="8" placeholder="输入每日工作小时">
         </div>
-        <button id="calculate">计算报酬</button>
-        <div id="result"></div>
+        <button id="calculate">开始计算</button>
+        <div id="result">您获得的劳动报酬: ¥0.00</div>
     </div>
 
-    <audio id="coinSound" src="gold.mp3" preload="auto"></audio>
+    <audio id="coinSound" src="/gold/gold.mp3" preload="auto"></audio>
 
     <script>
         let timer;
-        let targetSeconds = 0;
+        let targetSeconds = 5; // 默认5秒
         let elapsedSeconds = 0;
+        let totalPayment = 0; // 累计报酬
         
         document.getElementById('calculate').addEventListener('click', function() {
             const dailyWage = parseFloat(document.getElementById('dailyWage').value);
-            targetSeconds = parseFloat(document.getElementById('seconds').value);
+            const workHours = parseFloat(document.getElementById('workHours').value) || 8;
             
-            if (isNaN(dailyWage) || isNaN(targetSeconds)) {
-                alert('请输入有效的数字');
+            if (isNaN(dailyWage)) {
+                alert('请输入有效的日薪');
                 return;
             }
             
             // 清除之前的定时器
             if(timer) clearInterval(timer);
             elapsedSeconds = 0;
+            totalPayment = 0; // 重置累计报酬
             
-            calculateAndAnimate(dailyWage);
+            calculateAndAnimate(dailyWage, workHours);
             
             // 设置定时器，每秒检查一次
             timer = setInterval(() => {
                 elapsedSeconds++;
                 if(elapsedSeconds >= targetSeconds) {
-                    calculateAndAnimate(dailyWage);
+                    calculateAndAnimate(dailyWage, workHours);
                     elapsedSeconds = 0; // 重置计时
                 }
             }, 1000);
         });
         
-        function calculateAndAnimate(dailyWage) {
-            // 计算每秒工资 (日薪按8小时工作计算)
-            const wagePerSecond = dailyWage / (12 * 60 * 60);
+        function calculateAndAnimate(dailyWage, workHours) {
+            // 计算每秒工资 (按用户输入的工作小时计算)
+            const wagePerSecond = dailyWage / (workHours * 60 * 60);
             const payment = wagePerSecond * targetSeconds;
+            totalPayment += payment; // 累加报酬
             
-            document.getElementById('result').textContent = `您获得的劳动报酬: ¥${payment.toFixed(2)}`;
+            document.getElementById('result').textContent = `您获得的劳动报酬: ¥${totalPayment.toFixed(2)}`;
             
             // 播放金币声音
-            document.getElementById('coinSound').currentTime = 0; // 重置音频
+            document.getElementById('coinSound').currentTime = 0;
             document.getElementById('coinSound').play();
             
             // 创建金币动画
