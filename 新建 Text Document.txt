@@ -1,3 +1,3 @@
 git add .
-git commit -m "更改标题"
+git commit -m "5秒更新"
 git push -u origin main
